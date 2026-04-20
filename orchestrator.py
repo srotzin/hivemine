@@ -193,10 +193,31 @@ class HiveMineConductor:
     # ── Fleet start ───────────────────────────────────────────────────────────
 
     def start_fleet(self) -> None:
-        """Spawn all agent subprocesses."""
-        for cfg in self.configs:
-            for i in range(cfg.count):
+        """Spawn all agent subprocesses with human-paced staggering.
+
+        Instead of blasting all agents at once, we bring them up in small
+        random-sized waves with jittered pauses — looks like a human operator
+        starting rigs one by one, avoids pool-side connection storms, and
+        keeps any anti-bot heuristics quiet.
+        """
+        import random
+        all_work = [(cfg, i) for cfg in self.configs for i in range(cfg.count)]
+        total_planned = len(all_work)
+
+        spawned = 0
+        while spawned < total_planned:
+            # Batch size: 1-3 agents per wave
+            batch = random.randint(1, 3)
+            wave  = all_work[spawned : spawned + batch]
+            for cfg, i in wave:
                 self._spawn_agent(cfg, i)
+                # Short jitter inside the batch (0.3–1.1 s)
+                time.sleep(random.uniform(0.3, 1.1))
+            spawned += len(wave)
+
+            # Inter-wave pause: 2–6 s — mimics a human clicking through rigs
+            if spawned < total_planned:
+                time.sleep(random.uniform(2.0, 6.0))
 
         total = len(self.agents)
         print(f"[conductor] Fleet started — {total} agents across {len(self.configs)} coin(s)")
@@ -204,11 +225,21 @@ class HiveMineConductor:
     def _build_cmd(self, cfg: CoinConfig, agent_id: int) -> List[str]:
         """Build the subprocess command for one agent."""
         script = str(AGENT_SCRIPTS[cfg.coin])
-        name   = f"{cfg.coin[:3]}-agent-{agent_id:04d}"
+
+        # Aleo on ZKWork: worker name sent to pool must be the full stratum string
+        # format: <wallet>.<worker_short>  e.g. zkworkabc123.ae2agent-1
+        # The wallet passed to --wallet is the ZKWork address (not an aleo1... address)
+        if cfg.coin == "aleo":
+            worker_short = f"ae2agent-{agent_id + 1}"
+            stratum_name = f"{cfg.wallet}.{worker_short}"
+        else:
+            worker_prefix = cfg.extra.get("worker_prefix", cfg.coin[:3])
+            worker_short  = f"{worker_prefix}-{agent_id + 1}"
+            stratum_name  = worker_short
 
         cmd = [sys.executable, script,
                "--wallet",   cfg.wallet,
-               "--worker",   name,
+               "--worker",   stratum_name,
                "--pool",     cfg.pool,
                "--agent-id", str(agent_id),
                "--agents",   "1"]
@@ -228,7 +259,11 @@ class HiveMineConductor:
     def _spawn_agent(self, cfg: CoinConfig, local_id: int) -> AgentProcess:
         """Spawn a single agent subprocess."""
         global_id = len(self.agents)
-        name      = f"{cfg.coin[:3]}-agent-{local_id:04d}"
+        if cfg.coin == "aleo":
+            name = f"ae2agent-{local_id + 1}"
+        else:
+            worker_prefix = cfg.extra.get("worker_prefix", cfg.coin[:3])
+            name = f"{worker_prefix}-{local_id + 1}"
         cmd       = self._build_cmd(cfg, local_id)
 
         if self.dry_run:
@@ -304,7 +339,8 @@ class HiveMineConductor:
                         except Exception as e:
                             print(f"  [error] Failed to restart {agent.worker_name}: {e}")
                 else:
-                    restart_delays[agent.agent_id] = 5  # reset on healthy
+                    # Reset backoff and add a small jitter before next health cycle
+                    restart_delays[agent.agent_id] = 5
 
     # ── Stats & reporting ─────────────────────────────────────────────────────
 

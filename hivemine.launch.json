@@ -5,12 +5,13 @@
   "aleo": {
     "enabled": true,
     "pool": "aleo.hk.zk.work:10003",
-    "wallet": "aleo1YOUR_ALEO_WALLET_HERE",
-    "worker_prefix": "ae2gent",
+    "wallet": "zkworkdb96e3a638663eeab8cf56d96408d1fd72982f",
+    "worker_prefix": "ae2agent",
     "agents": 200,
     "ramp_per_day": 200,
     "declared_hashrate_mhs": 720,
     "model": "AE2",
+    "_stratum_format": "zkworkdb96e3a638663eeab8cf56d96408d1fd72982f.ae2agent-N",
     "_yield_net": "~$22,700/day after 20% ZKWork fee"
   },
 

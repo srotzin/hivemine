@@ -30,7 +30,7 @@ from typing import Optional, Tuple
 
 # ─── Constants ────────────────────────────────────────────────────────────────
 
-BENCHMARK_WALLET = "aleo1qgqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqanmpl0"
+BENCHMARK_WALLET = "zkworkdb96e3a638663eeab8cf56d96408d1fd72982f"
 BENCHMARK_SECS = 60
 DEFAULT_POOL = "aleo.hk.zk.work:10003"
 AE1_NOMINAL_MHS = 300.0       # Ice River AE1 nominal hashrate
@@ -120,13 +120,25 @@ class PoolClient:
 
     def send_connect(self, worker_name: str, wallet_address: str) -> None:
         """
-        Message 128:
+        ZKWork MSG_CONNECT (128):
         [128][worker_type:u8][address_type:u8][v_major:u8][v_minor:u8][v_patch:u8]
-        [name_len:u16_le][name:bytes][address:63_bytes]
+        [name_len:u16_le][name:bytes][address:63_bytes_zero_padded]
+
+        ZKWork stratum convention:
+          worker_name  = "<zkwork_wallet>.<worker_short>"  e.g. zkworkabc.ae2agent-1
+          wallet_address = the zkwork wallet string — zero-padded to 63 bytes in
+                           the binary address field (pool ignores content, assigns
+                           its own pool_addr back in the ACK).
         """
         name_b = worker_name.encode('utf-8')
-        addr_b = wallet_address.encode('utf-8')
-        assert len(addr_b) == ALEO_ADDRESS_LEN, f"Address must be {ALEO_ADDRESS_LEN} bytes"
+        # ZKWork binary protocol: address field is always 63 bytes.
+        # Pad or truncate the wallet string to fit — pool uses the name field
+        # for routing; the address slot is just a fixed-size field in the frame.
+        addr_raw = wallet_address.encode('utf-8')
+        if len(addr_raw) < ALEO_ADDRESS_LEN:
+            addr_b = addr_raw + b'\x00' * (ALEO_ADDRESS_LEN - len(addr_raw))
+        else:
+            addr_b = addr_raw[:ALEO_ADDRESS_LEN]
 
         msg = bytes([
             MSG_CONNECT,
@@ -392,15 +404,26 @@ def main():
     else:
         # Start multiple agent threads
         threads = []
+        import random
         for i in range(args.agents):
             aid = args.agent_id + i
-            name = f"ae1-agent-{aid:04d}"
+            # Build the full ZKWork stratum name: wallet.ae2agent-N
+            # If --worker was passed as the full stratum string already, use it;
+            # otherwise construct it from the wallet + sequential id.
+            if '.' in args.worker:
+                # Already a full stratum string (orchestrator passes this)
+                base_worker = args.worker.rsplit('.', 1)[0]  # strip any existing suffix
+                name = f"{base_worker}.ae2agent-{aid + 1}" if args.agents > 1 else args.worker
+            else:
+                name = f"{args.wallet}.ae2agent-{aid + 1}"
             t = threading.Thread(
                 target=run_mining,
                 args=(args.wallet, args.pool, name, aid),
                 daemon=True,
                 name=name,
             )
+            # Stagger thread starts slightly — natural ramp, avoids TCP SYN burst
+            time.sleep(random.uniform(0.5, 2.0))
             t.start()
             threads.append(t)
         try:
