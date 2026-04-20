@@ -35,6 +35,12 @@ try:
 except ImportError:
     _build_router = None  # type: ignore
 
+# Hivelandia land claim (optional — fire-and-forget on agent spawn)
+try:
+    from land_claim import claim_parcel_async as _claim_land  # type: ignore
+except ImportError:
+    _claim_land = None  # type: ignore
+
 # ─── Paths ────────────────────────────────────────────────────────────────────
 
 COINS_DIR = Path(__file__).parent / "coins"
@@ -251,6 +257,14 @@ class HiveMineConductor:
         )
         with self._lock:
             self.agents.append(agent)
+
+        # Fire-and-forget Hivelandia land claim for this agent's DID
+        # DID format: did:hive:hivemine-<coin>-<name>
+        if _claim_land is not None and not self.dry_run:
+            agent_did = f"did:hive:hivemine-{cfg.coin}-{name}"
+            coin_upper = cfg.coin.upper()
+            _claim_land(agent_did, agent_name=name, coin=coin_upper)
+
         return agent
 
     # ── Health monitor ────────────────────────────────────────────────────────
