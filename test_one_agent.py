@@ -20,8 +20,8 @@ from typing import Optional, Tuple
 
 # ─── Config ───────────────────────────────────────────────────────────────────
 
-POOL_HOST   = "aleo.hk.zk.work"
-POOL_PORT   = 10003
+POOL_HOST   = "aleo.asic.zk.work"
+POOL_PORT   = 20002
 WALLET      = "zkworkdb96e3a638663eeab8cf56d96408d1fd72982f"
 WORKER_NAME = f"{WALLET}.ae2agent-1"
 
@@ -124,7 +124,7 @@ def main() -> int:
     print("=" * 60)
     print("  HiveMine — Single Agent ZKWork Connection Test")
     print("=" * 60)
-    print(f"  Pool:    {POOL_HOST}:{POOL_PORT}")
+    print(f"  Pool:    {POOL_HOST}:{POOL_PORT}  (ASIC stratum+tcp)")
     print(f"  Worker:  ae2agent-1")
     print(f"  Wallet:  {WALLET[:12]}...{WALLET[-4:]}")
     print()
