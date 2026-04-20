@@ -1,0 +1,52 @@
+[package]
+name = "hivemine"
+version = "0.1.0"
+edition = "2021"
+description = "HiveMine Rust prover agent — wraps snarkVM Puzzle::prove() and connects to ZKWork pool, masquerading as Ice River AE1 (300 MH/s)"
+authors = ["HiveMine Agent"]
+license = "Apache-2.0"
+
+[[bin]]
+name = "hivemine"
+path = "src/main.rs"
+
+[dependencies]
+# snarkVM puzzle crate (4.x series — new API: Puzzle::prove(epoch_hash, addr, counter, min_target))
+snarkvm-ledger-puzzle       = "4"
+snarkvm-ledger-puzzle-epoch = "4"    # provides the SynthesisPuzzle<N, A> implementation
+
+# snarkVM console types (same version series)
+snarkvm-console-network = "4"
+snarkvm-console-account = "4"
+
+# snarkVM circuit network (AleoV0 for SynthesisPuzzle second generic param)
+snarkvm-circuit-network = "4"
+
+# Async runtime for pool TCP client
+tokio = { version = "1", features = ["full"] }
+
+# CLI argument parsing
+clap = { version = "4", features = ["derive"] }
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Random nonce generation
+rand = "0.8"
+
+# Byte order for binary protocol encoding
+byteorder = "1"
+
+# Anyhow for ergonomic error handling
+anyhow = "1"
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 1
+panic = "abort"
+
+[profile.dev]
+opt-level = 0
+debug = true
