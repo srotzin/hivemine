@@ -1,0 +1,56 @@
+{
+  "_note": "Phase 1 config — 200 AE2gents today, 200 more tomorrow. Copy to hivemine.json and fill wallet.",
+  "_proven": "Steve ran 115 miners on ZKWork already — pool accepted all of them, hash rate added cleanly.",
+
+  "aleo": {
+    "enabled": true,
+    "pool": "aleo.hk.zk.work:10003",
+    "wallet": "aleo1YOUR_ALEO_WALLET_HERE",
+    "worker_prefix": "ae2gent",
+    "agents": 200,
+    "ramp_per_day": 200,
+    "declared_hashrate_mhs": 720,
+    "model": "AE2",
+    "_yield": "473 ALEO/day per agent × 200 = 94,600 ALEO/day = ~$28,380/day at $0.30",
+    "_pool_note": "ZKWork 20% fee. New staking cycle May 1 — confirm stake before then.",
+    "_smoothing": "EWMA 5min window, 30s share pacer, 200ms job grace — prevents 0 MH/s spikes"
+  },
+
+  "kaspa":  { "enabled": false, "_note": "Phase 2 — after AE2 fleet is stable" },
+  "scrypt": { "enabled": false, "_note": "Phase 2" },
+  "xmr":    { "enabled": false, "_note": "Phase 2" },
+
+  "revenue_router": {
+    "enabled": true,
+    "hivebank_endpoint": "https://hivebank.onrender.com/v1/bank/treasury/deposit",
+    "hivebank_internal_key": "hive_internal_125e04e071e8829be631ea0216dd4a0c9b707975fcecaf8c62c6a2ab43327d46",
+    "founder_did": "did:hive:f150bbec-5660-413e-b305-d8d965b47845",
+    "treasury_did": "did:hive:hiveforce-ambassador",
+    "flush_interval_seconds": 3600
+  },
+
+  "orchestrator": {
+    "max_agents": 200,
+    "health_check_interval_seconds": 30,
+    "restart_on_crash": true,
+    "fleet_report_interval_seconds": 60,
+    "state_file": "hivemine-state.json"
+  },
+
+  "_day1_target": {
+    "agents": 200,
+    "aleo_per_day_gross": 94600,
+    "aleo_per_day_net_after_20pct_fee": 75680,
+    "usd_per_day_at_030": 22704
+  },
+
+  "_day2_target": {
+    "agents": 400,
+    "aleo_per_day_gross": 189200,
+    "aleo_per_day_net_after_20pct_fee": 151360,
+    "usd_per_day_at_030": 45408,
+    "_note": "Day 2 earnings alone fund the $50K CEX-DEX arb capital"
+  },
+
+  "_staking_reminder": "ARC-46 staking cycle resets May 1. Check https://www.whalepool.com/mining/staking before ramping past 500 agents."
+}
