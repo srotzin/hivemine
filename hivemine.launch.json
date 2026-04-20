@@ -1,0 +1,80 @@
+{
+  "_note": "HiveMine Day 1 launch config — copy to hivemine.json and fill in wallet addresses",
+  "_kaspa": "ELIMINATED — CPU kHeavyHash earns nothing at network scale (~1 EH/s). Not worth the agents.",
+
+  "aleo": {
+    "enabled": true,
+    "pool": "aleo.hk.zk.work:10003",
+    "wallet": "aleo1YOUR_ALEO_WALLET_HERE",
+    "worker_prefix": "ae2gent",
+    "agents": 200,
+    "ramp_per_day": 200,
+    "declared_hashrate_mhs": 720,
+    "model": "AE2",
+    "_yield_net": "~$22,700/day after 20% ZKWork fee"
+  },
+
+  "scrypt": {
+    "enabled": true,
+    "pool": "ltc.viabtc.com:3333",
+    "ltc_wallet": "ltc1YOUR_LTC_WALLET_HERE",
+    "doge_wallet": "DYOUR_DOGE_WALLET_HERE",
+    "worker_prefix": "hivescrypt",
+    "agents": 400,
+    "ramp_per_day": 400,
+    "declared_hashrate_khs": 500,
+    "_yield_net": "~$3,500/day merged DOGE+LTC"
+  },
+
+  "xmr": {
+    "enabled": true,
+    "pool": "pool.supportxmr.com:3333",
+    "wallet": "4YOUR_XMR_WALLET_HERE",
+    "worker_prefix": "hivexmr",
+    "agents": 400,
+    "ramp_per_day": 400,
+    "declared_hashrate_khs": 1,
+    "_yield_net": "~$1,200/day bonus"
+  },
+
+  "kaspa": {
+    "enabled": false,
+    "_reason": "CPU kHeavyHash is invisible at 1 EH/s network difficulty. Bagged."
+  },
+
+  "revenue_router": {
+    "enabled": true,
+    "hivebank_endpoint": "https://hivebank.onrender.com/v1/bank/treasury/deposit",
+    "hivebank_internal_key": "hive_internal_125e04e071e8829be631ea0216dd4a0c9b707975fcecaf8c62c6a2ab43327d46",
+    "founder_did": "did:hive:f150bbec-5660-413e-b305-d8d965b47845",
+    "treasury_did": "did:hive:hiveforce-ambassador",
+    "flush_interval_seconds": 3600
+  },
+
+  "orchestrator": {
+    "max_agents": 1000,
+    "health_check_interval_seconds": 30,
+    "restart_on_crash": true,
+    "fleet_report_interval_seconds": 60,
+    "state_file": "hivemine-state.json"
+  },
+
+  "_day1": {
+    "total_agents": 1000,
+    "usd_per_day": 27400,
+    "breakdown": {
+      "aleo":  22700,
+      "scrypt": 3500,
+      "xmr":    1200
+    }
+  },
+
+  "_day2": {
+    "total_agents": 1200,
+    "adds": "+200 Aleo",
+    "usd_per_day": 50100,
+    "_note": "Day 2 Aleo earnings alone fund the $50K CEX-DEX arb capital"
+  },
+
+  "_staking_reminder": "ARC-46 staking cycle resets May 1 — confirm ZKWork stake before ramping past 500 Aleo agents."
+}
