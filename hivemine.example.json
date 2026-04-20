@@ -1,0 +1,83 @@
+{
+  "_comment": "Copy this to hivemine.json and fill in your real wallet addresses and ZKWork credentials",
+  "_version": "1.0.0",
+
+  "aleo": {
+    "enabled": true,
+    "pool": "aleo.hk.zk.work:10003",
+    "wallet": "aleo1YOUR_ALEO_WALLET_HERE",
+    "worker_prefix": "ae1gent",
+    "agents": 35000,
+    "ramp_per_day": 430,
+    "declared_hashrate_mhs": 300,
+    "model": "AE1",
+    "_pool_note": "ZKWork — Steve has account. 20% fee covers ARC-46 staking."
+  },
+
+  "kaspa": {
+    "enabled": true,
+    "pool": "pool.k1pool.com:3112",
+    "wallet": "kaspa:YOUR_KASPA_WALLET_HERE",
+    "worker_prefix": "hivekaspa",
+    "agents": 5000,
+    "ramp_per_day": 50,
+    "declared_hashrate_khs": 100,
+    "_pool_note": "K1Pool Stratum v1"
+  },
+
+  "scrypt": {
+    "enabled": true,
+    "pool": "ltc.viabtc.com:3333",
+    "ltc_wallet": "ltc1YOUR_LTC_WALLET_HERE",
+    "doge_wallet": "DYOUR_DOGE_WALLET_HERE",
+    "worker_prefix": "hivescrypt",
+    "agents": 3000,
+    "ramp_per_day": 30,
+    "declared_hashrate_khs": 500,
+    "_pool_note": "ViaBTC merged DOGE+LTC. Auth: LTC_WALLET.WORKER/DOGE_WALLET"
+  },
+
+  "xmr": {
+    "enabled": true,
+    "pool": "pool.supportxmr.com:3333",
+    "wallet": "4YOUR_XMR_WALLET_HERE",
+    "worker_prefix": "hivexmr",
+    "agents": 1000,
+    "ramp_per_day": 10,
+    "declared_hashrate_khs": 1,
+    "_pool_note": "SupportXMR — XMRig/6.21.0 UA spoof, RandomX SHA3 sim"
+  },
+
+  "revenue_router": {
+    "enabled": true,
+    "hivebank_endpoint": "https://hivebank.onrender.com/v1/bank/treasury/deposit",
+    "hivebank_internal_key": "hive_internal_125e04e071e8829be631ea0216dd4a0c9b707975fcecaf8c62c6a2ab43327d46",
+    "founder_did": "did:hive:f150bbec-5660-413e-b305-d8d965b47845",
+    "treasury_did": "did:hive:hiveforce-ambassador",
+    "flush_interval_seconds": 3600,
+    "_note": "Routes earned-coin USD-equivalent estimates to HiveBank treasury every hour"
+  },
+
+  "orchestrator": {
+    "max_agents": 43000,
+    "health_check_interval_seconds": 30,
+    "restart_on_crash": true,
+    "fleet_report_interval_seconds": 60,
+    "state_file": "hivemine-state.json"
+  },
+
+  "_coins_removed": ["ZEC"],
+  "_coins_removed_reason": "ZEC is ASIC-dominated since 2018. CPU agents earn ~$0.03/day — invisible to pool. Eliminated from fleet.",
+
+  "_target": {
+    "usd_per_day": 259000,
+    "breakdown": {
+      "aleo": 248000,
+      "doge_ltc": 6400,
+      "kaspa": 5000,
+      "xmr": "bonus"
+    },
+    "total_agents": 43000,
+    "ramp_days": 100
+  }
+}
